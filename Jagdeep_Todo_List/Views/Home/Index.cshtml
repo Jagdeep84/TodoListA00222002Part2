@@ -1,0 +1,109 @@
+﻿@model IEnumerable<To_Do_List_Jagdeep.Models.TodoItem>
+@{
+    ViewData["Title"] = "Home Page";
+    var CompletedItems = Model.Where(a => a.Done == true && a.DoneDate.HasValue && DateTime.Now.Subtract(a.DoneDate.Value).Days <= 1);
+    var DueItems = Model.Where(a => a.Done != true && a.DueDate.HasValue && a.DueDate.Value.Subtract(DateTime.Now).Days <= 1);
+}
+<div class="text-center pb0-0">
+    <p>Logged In UserName: @(!string.IsNullOrEmpty(User.Identity.Name)? User.Identity.Name:"")</p>
+</div>
+@if (User.Identity.IsAuthenticated && !string.IsNullOrEmpty(User.Identity.Name))
+{
+    <p>
+        <a class="btn third ctx-ss-style disable-btns-when-offline" asp-controller="TodoList" asp-action="Create">Click here to create a new task</a>
+    </p>
+    <div class="row ctx-ss-style" style="text-align:center">
+        <div class="col-lg-6 ctx-ss-style">
+            <h2>Completed Items</h2>
+            <div class="table-responsive  ctx-ss-style ctx-ss-style-2">
+                <table class="table table-bordered table-hover  table-striped  ctx-ss-style ctx-ss-style-2">
+                    <thead>
+                        <tr>
+                            <th>
+                                Title
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                            <th>
+                                Completed On
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var completeitem in CompletedItems)
+                        {
+                            <tr>
+                                <td>
+                                    @completeitem.Title <a id="txt-copy-btn" class="btn third txt-copy-btn  ctx-ss-style" onclick="copyTodoTextToClipBoard('@completeitem.Title')">copy title</a>
+                                </td>
+                                <td>
+                                    @completeitem.Description
+                                </td>
+                                <td>
+                                    @if (completeitem.DoneDate.HasValue)
+                                    {
+                                        <p> @(completeitem.DoneDate.HasValue? completeitem.DoneDate.Value.ToString():"")</p>
+                                    }
+                                </td>
+                                <td class="remove-at-offline">
+                                    <a class="btn btn third disable-btns-when-offline" asp-controller="TodoList" asp-action="Edit" asp-route-id="@completeitem.TodoItemId">Edit</a>
+                                    <a class="btn btn third disable-btns-when-offline" asp-controller="TodoList" asp-action="Delete" asp-route-id="@completeitem.TodoItemId">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <h2>Due Items</h2>
+            <div class="table-responsive mm-oo ctx-st">
+                <table class="table table-bordered table-hover table-striped mm-oo ctx-st">
+                    <thead>
+                        <tr>
+                            <th>
+                                Title
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                            <th>
+                                Due On
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dueitem in DueItems)
+                        {
+                            <tr>
+                                <td>@dueitem.Title <a id="txt-copy-btn" class="btn third txt-copy-btn  ctx-ss-style" onclick="copyTodoTextToClipBoard('@dueitem.Title')">copy to clip</a></td>
+                                <td>@dueitem.Description</td>
+                                <td>@dueitem.DueDate</td>
+                                <td class="mm-oo ctx-st">
+                                    <a class="mm-oo ctx-st btn btn third disable-btns-when-offline" asp-controller="TodoList" asp-action="Edit" asp-route-id="@dueitem.TodoItemId">Edit</a>
+                                    <a class="mm-oo ctx-st btn btn third disable-btns-when-offline" asp-controller="TodoList" asp-action="Delete" asp-route-id="@dueitem.TodoItemId">Delete</a>
+                                    <a class="mm-oo ctx-st btn btn third disable-btns-when-offline" href="/TodoList/DoneTodo?TodoId=@dueitem.TodoItemId">Mark As Done</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center pb0-0">
+        Welcome to our todo items site.<br>
+        Our site provides the ability to<br>
+        1) todo item Creation.<br>
+        2) Updation of todo item.<br>
+        3) Deletion of todo item.<br>
+        4)One can complete a todo item.
+    </div>
+}
+<script src="~/js/site.js"></script>
